@@ -27,6 +27,7 @@
         <button mat-icon-button *ngIf="searchText">
           <mat-icon (click)="clearFilter()">clear</mat-icon>
         </button>
+		<span *ngIf="isSearchActive">{{occurenceCount}}</span>
       </div>
     </div>
   </div>

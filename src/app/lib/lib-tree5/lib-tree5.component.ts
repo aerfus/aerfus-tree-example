@@ -15,6 +15,7 @@ export class LibTree5Component implements OnInit {
   nestedTreeControl: FlatTreeControl<LibraryNodeModel>;
   nestedDataSource: MatTreeNestedDataSource<LibraryNodeModel>;
   searchText: string;
+  occurenceCount: number;
   isSearchActive: boolean;
 
   constructor(
@@ -32,6 +33,7 @@ export class LibTree5Component implements OnInit {
       });*/
     });
     this.searchText = '';
+    this.occurenceCount = 0;
     this.isSearchActive = false;
   }
 
@@ -55,18 +57,18 @@ export class LibTree5Component implements OnInit {
       }
     };
   }
-  
-  public filterTree() {   
+
+  public filterTree() {
+    this.occurenceCount = 0;
     let text = this.searchText.toLowerCase();
     this.nestedDataSource.data.forEach(childNode => {
-      let isChildVisible = this.filterNodeByName(childNode,text);
-      childNode.visible = isChildVisible || childNode.label.toLowerCase().indexOf(text) > -1;
+      this.filterNodeByName(childNode,text);
     });
     this.isSearchActive = true;
     this.nestedTreeControl.expandAll();
   }
 
-  public filterNodeByName(node: any, text: string): boolean {
+  private filterNodeByName(node: any, text: string): boolean {
     let isVisible = false;
     if (node.items) {
       node.items.forEach(childNode => {
@@ -76,39 +78,16 @@ export class LibTree5Component implements OnInit {
         }
       });
     }
-    node.visible = isVisible || node.label.toLowerCase().indexOf(text) > -1;
+    node.visible = this.isLabelMatch(node.label, text) || isVisible;
     return node.visible;
   }
 
-  /*private setChildrenVisible() {
-    if (!text) {
-      this.isSearchActive = false;
-      return;
+  private isLabelMatch(label: string, text: string): boolean {
+    let isMatch = label.toLowerCase().indexOf(text) > -1;
+    if (isMatch) {
+      this.occurenceCount++;
     }
-    this.isSearchActive = true;
-    this.nestedTreeControl.expandAll();
-
-    node.forEach(x => {
-      x.visible = x.label.toLowerCase().indexOf(text) >= 0;
-      if (x.parent) this.setParentVisible(text, x.parent, x.visible);
-      if (x.items) this.setChildrenVisible(text, x.items);
-    });
+    return isMatch;
   }
-
-  private setParentVisible(text: string, node: any, visible: boolean) {
-    node.visible = visible || node.visible || node.label.toLowerCase().indexOf(text) >= 0;
-    if (node.parent) {
-        this.setParentVisible(text, node.parent, node.ok);
-    }
-  }
-
-  setParent(data, parent) {
-    data.parent = parent;
-    if (data.items) {
-      data.items.forEach(x => {
-        this.setParent(x, data);
-      });
-    }
-  }*/
 
 }

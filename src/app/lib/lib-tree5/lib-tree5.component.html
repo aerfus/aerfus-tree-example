@@ -24,9 +24,8 @@
             aria-label="Search" [(ngModel)]="searchText" (keydown)="searchKeyDown($event)">
           <!--(ngModelChange)="treeGrid.findNext(searchText, caseSensitive, exactMatch)" -->
         </mat-form-field>
-        <button mat-icon-button>
-          <mat-icon *ngIf="searchText.length == 0"></mat-icon>
-          <mat-icon *ngIf="searchText.length > 0" (click)="clearFilter()">clear</mat-icon>
+        <button mat-icon-button *ngIf="searchText">
+          <mat-icon (click)="clearFilter()">clear</mat-icon>
         </button>
       </div>
     </div>

@@ -1,0 +1,15 @@
+.lib-tree-invisible {
+  display: none;
+}
+
+.lib-tree ul,
+.lib-tree li {
+  margin-top: 0;
+  margin-bottom: 0;
+  list-style-type: none;
+}
+
+.mat-tree-position {
+    position: fixed;
+    top: 5%;
+}

@@ -14,8 +14,6 @@
         <button class="form_button" title="Развернуть всё" (click)="nestedTreeControl.expandAll()">
           <mat-icon aria-label="Развернуть всё">unfold_more</mat-icon>
         </button>
-        <!--   <button (click)="tree.treeModel.focusNextNode()">Next</button>
-        <button (click)="tree.treeModel.focusPreviousNode()">Prev</button>  -->
         <button mat-icon-button>
           <mat-icon (click)="filterTree()">search</mat-icon>
         </button>
@@ -27,7 +25,17 @@
         <button mat-icon-button *ngIf="searchText">
           <mat-icon (click)="clearFilter()">clear</mat-icon>
         </button>
-		<span *ngIf="isSearchActive">{{occurenceCount}}</span>
+        <button *ngIf="isSearchActive" class="form_button" title="Предыдущий результат"
+			(click)="prevOccurence()">
+          <mat-icon aria-label="Свернуть всё">arrow_left</mat-icon>
+        </button>
+        <button *ngIf="isSearchActive" class="form_button" title="Следующий результат"
+			(click)="nextOccurence()">
+          <mat-icon aria-label="Развернуть всё">arrow_right</mat-icon>
+        </button>
+		<span *ngIf="isSearchActive" class="lib-tree-search-info">
+			{{currentOccurenceIdx + 1}} из {{this.occurenceArr.length}}
+		</span>
       </div>
     </div>
   </div>
@@ -42,7 +50,7 @@
           </mat-icon>
         </button>
         <a href="#" style="color:dimgrey;">
-        <span [innerHTML]="highlight(node.label)"></span>
+        <span id="{{node.id}}" [innerHTML]="highlight(node)"></span>
         </a>
       </li>
     </mat-tree-node>
@@ -56,7 +64,7 @@
               {{nestedTreeControl.isExpanded(node) ? 'folder_open' : 'folder'}}
             </mat-icon>
           </button>
-          <span [innerHTML]="highlight(node.label)"></span>
+          <span id="{{node.id}}" [innerHTML]="highlight(node)"></span>
         </div>
         <ul [class.lib-tree-invisible]="!nestedTreeControl.isExpanded(node)">
           <ng-container matTreeNodeOutlet></ng-container>

@@ -12,3 +12,11 @@
 .lib-tree-highlight {
     background: yellow;
 }
+
+.lib-tree-highlight-focus {
+    background: darkorange;
+}
+
+.lib-tree-search-info {
+	margin-left: 10;
+}

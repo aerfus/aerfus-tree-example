@@ -16,7 +16,8 @@ export class LibTree5Component implements OnInit {
   nestedTreeControl: FlatTreeControl<LibraryNodeModel>;
   nestedDataSource: MatTreeNestedDataSource<LibraryNodeModel>;
   searchText: string;
-  occurenceCount: number;
+  occurenceArr: string[];
+  currentOccurenceIdx: number;
   isSearchActive: boolean;
 
   constructor(
@@ -31,7 +32,8 @@ export class LibTree5Component implements OnInit {
       this.nestedTreeControl.dataNodes = data;
     });
     this.searchText = '';
-    this.occurenceCount = 0;
+    this.occurenceArr = [];
+    this.currentOccurenceIdx = -1;
     this.isSearchActive = false;
   }
 
@@ -40,12 +42,18 @@ export class LibTree5Component implements OnInit {
   hasNestedChild = (_: number, nodeData: LibraryNodeModel) =>
     !!nodeData.items && nodeData.items.length > 0;
 
-  public highlight(label: string) {
+  public highlight(node: LibraryNodeModel) {
+    let label = node.label
     if(!this.searchText || !this.isSearchActive) {
       return label;
     }
+
+    let focusId = this.getFocusedNodeId();
+    let className = node.id !== focusId
+      ? 'lib-tree-highlight'
+      : 'lib-tree-highlight-focus';
     return label.replace(new RegExp(this.searchText, "gi"), match => {
-      return '<span class="lib-tree-highlight">' + match + '</span>';
+      return '<span class="'+ className + '">' + match + '</span>';
     });
   }
 
@@ -53,6 +61,7 @@ export class LibTree5Component implements OnInit {
     this.isSearchActive = false;
     this.searchText = '';
     this.nestedTreeControl.collapseAll();
+    this.occurenceArr = [];
 
   }
 
@@ -60,6 +69,9 @@ export class LibTree5Component implements OnInit {
     if (ev.key === "Enter" || ev.key === "ArrowDown" || ev.key === "ArrowRight") {
       if (this.searchText) {
         this.filterTree();
+        this.buildOccurenceArray();
+        this.currentOccurenceIdx = -1;
+        this.nextOccurence();
       } else {
         this.clearFilter();
       }
@@ -67,7 +79,6 @@ export class LibTree5Component implements OnInit {
   }
 
   public filterTree() {
-    this.occurenceCount = 0;
     let text = this.searchText.toLowerCase();
     this.nestedDataSource.data.forEach(childNode => {
       this.filterNodeByName(childNode,text);
@@ -86,15 +97,76 @@ export class LibTree5Component implements OnInit {
         }
       });
     }
-    node.visible = this.isLabelMatch(node.label, text) || isVisible;
+    node.visible = this.isNodeMatch(node, text) || isVisible;
     return node.visible;
   }
 
-  private isLabelMatch(label: string, text: string): boolean {
-    let isMatch = label.toLowerCase().indexOf(text) > -1;
-    if (isMatch) {
-      this.occurenceCount++;
+  private buildOccurenceArray() {
+    this.occurenceArr = [];
+    let text = this.searchText.toLowerCase();
+    this.nestedDataSource.data.forEach(childNode => {
+      if (childNode.visible) {
+        this.enlargeOccurenceArray(childNode, text);
+      }
+    });
+  }
+
+  private enlargeOccurenceArray(node: LibraryNodeModel, text: string) {
+    if (!node.visible) {
+      return;
     }
-    return isMatch;
+    if (this.isNodeMatch(node, text)) {
+      this.occurenceArr.push(node.id);
+    }
+    if (node.items) {
+      node.items.forEach(childNode => {
+        if (childNode.visible) {
+          this.enlargeOccurenceArray(childNode, text);
+        }
+      });
+    }
+  }
+
+  private isNodeMatch(node: LibraryNodeModel, text: string): boolean {
+    return node.label.toLowerCase().indexOf(text) > -1;;
+  }
+
+  public prevOccurence() {
+    if (!this.occurenceArr) {
+      this.currentOccurenceIdx = -1;
+      return;
+    }
+    let newOccurenceIdx = this.currentOccurenceIdx - 1;
+    if (newOccurenceIdx < 0) {
+      newOccurenceIdx = this.occurenceArr.length - 1;
+    }
+    this.currentOccurenceIdx = newOccurenceIdx;
+    this.scrollToOccurence();
+  }
+
+  public nextOccurence() {
+    if (!this.occurenceArr) {
+      this.currentOccurenceIdx = -1;
+      return;
+    }
+    let newOccurenceIdx = this.currentOccurenceIdx + 1;
+    if (newOccurenceIdx > this.occurenceArr.length - 1) {
+      newOccurenceIdx = 0;
+    }
+    this.currentOccurenceIdx = newOccurenceIdx;
+    this.scrollToOccurence();
+  }
+
+  private getFocusedNodeId(): string {
+    if (this.currentOccurenceIdx > -1 && this.currentOccurenceIdx < this.occurenceArr.length) {
+      return this.occurenceArr[this.currentOccurenceIdx];
+    }
+    return '';
+  }
+
+  private scrollToOccurence() {
+    let focusId = this.getFocusedNodeId();
+    let el = document.getElementById(focusId);
+    el.scrollIntoView();
   }
 }

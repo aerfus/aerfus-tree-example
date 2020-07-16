@@ -1,6 +1,6 @@
 import { LibTreeService } from 'src/app/services/lib-tree.service';
 import { LibraryNodeModel } from 'src/app/models/lib-tree.model';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { MatTreeNestedDataSource } from '@angular/material/tree';
 import { NestedTreeControl, FlatTreeControl } from '@angular/cdk/tree';
 import { of as observableOf } from 'rxjs';
@@ -9,7 +9,8 @@ import { of as observableOf } from 'rxjs';
 @Component({
   selector: 'app-lib-tree5',
   templateUrl: './lib-tree5.component.html',
-  styleUrls: ['./lib-tree5.component.css']
+  styleUrls: ['./lib-tree5.component.css'],
+  encapsulation: ViewEncapsulation.None
 })
 export class LibTree5Component implements OnInit {
   nestedTreeControl: FlatTreeControl<LibraryNodeModel>;
@@ -28,9 +29,6 @@ export class LibTree5Component implements OnInit {
     this.dataService.getLibTreeItems().subscribe(data => {
       this.nestedDataSource.data = data;
       this.nestedTreeControl.dataNodes = data;
-      /*Object.keys(this.nestedDataSource.data).forEach(x => {
-          this.setParent(this.nestedDataSource.data[x], null);
-      });*/
     });
     this.searchText = '';
     this.occurenceCount = 0;
@@ -42,10 +40,20 @@ export class LibTree5Component implements OnInit {
   hasNestedChild = (_: number, nodeData: LibraryNodeModel) =>
     !!nodeData.items && nodeData.items.length > 0;
 
+  public highlight(label: string) {
+    if(!this.searchText || !this.isSearchActive) {
+      return label;
+    }
+    return label.replace(new RegExp(this.searchText, "gi"), match => {
+      return '<span class="lib-tree-highlight">' + match + '</span>';
+    });
+  }
+
   public clearFilter() {
     this.isSearchActive = false;
     this.searchText = '';
     this.nestedTreeControl.collapseAll();
+
   }
 
   public searchKeyDown(ev) {
@@ -89,5 +97,4 @@ export class LibTree5Component implements OnInit {
     }
     return isMatch;
   }
-
 }

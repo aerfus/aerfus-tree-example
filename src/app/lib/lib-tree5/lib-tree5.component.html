@@ -42,7 +42,7 @@
           </mat-icon>
         </button>
         <a href="#" style="color:dimgrey;">
-          {{node.label}}
+        <span [innerHTML]="highlight(node.label)"></span>
         </a>
       </li>
     </mat-tree-node>
@@ -56,7 +56,7 @@
               {{nestedTreeControl.isExpanded(node) ? 'folder_open' : 'folder'}}
             </mat-icon>
           </button>
-          {{node.label}}
+          <span [innerHTML]="highlight(node.label)"></span>
         </div>
         <ul [class.lib-tree-invisible]="!nestedTreeControl.isExpanded(node)">
           <ng-container matTreeNodeOutlet></ng-container>

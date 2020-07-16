@@ -9,7 +9,6 @@
   list-style-type: none;
 }
 
-.mat-tree-position {
-    position: fixed;
-    top: 5%;
+.lib-tree-highlight {
+    background: yellow;
 }
